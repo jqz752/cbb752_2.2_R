@@ -8,12 +8,12 @@
 ##### main function #####
 #########################
 
-get.fpkm.tpm = function(input.sam, input.bed=NULL, input.gtf=NULL,
+get.fpkm.tpm = function(input.sam, input.gtf,
                         sam.num.header, mapq.thresh=NA, 
                         save.pileup=T, save.pileup.name='pileup.Rdata',
                         use.parallel=T){
   ##### input:
-  # - input.sam/bed/gtf: filename of input sam/bed/gtf file
+  # - input.sam/gtf: filename of input sam/gtf file
   # - sam.num.header: number of lines in head section of .sam; >=0
   # - mapq.thresh: threshold for MAPQ; >=0; applicable only if MAPQ!=255
   # - save.pileup, save.pileup.name: whether to save pileup as save.pileup.Rdata
@@ -54,7 +54,28 @@ get.fpkm.tpm = function(input.sam, input.bed=NULL, input.gtf=NULL,
                            save.name=save.pileup.name,
                            use.parallel = use.parallel)
   
+  ##### read in GTF
+  print('reading in gtf file...')
+  gtf = read.delim(input.gtf, header=F, as.is=T)
+  
+  # get gene id and gene name from V9 (attributes); drop ending semi-colon
+  gtf.gene.id = c()
+  gtf.gene.name = c()
+  for (i in 1:nrow(gtf)){
+    attributes = strsplit(gtf[i, 9], split=" ")[[1]]
+    gtf.gene.id = c(gtf.gene.id, substr(attributes[2], start=1, stop=nchar(attributes[2])-1))
+    gtf.gene.name = c(gtf.gene.name, substr(attributes[10], start=1, stop=nchar(attributes[10])-1))
+  }
+  
+  gtf = cbind(gtf[, -9], gtf.gene.id, gtf.gene.name)
+  rm(gtf.gene.id, gtf.gene.name)
+  
+  # keep only columns of interest
+  gtf = gtf[, c(1,4,5,9,10)]
+  colnames(gtf) = c('chr', 'start', 'end', 'id', 'name')
+  
   return(0)
+  
 }
 
 #########################################################
