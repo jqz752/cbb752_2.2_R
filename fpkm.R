@@ -1,4 +1,7 @@
-setwd("~/University/2016 Spring/cbb752/project/rnaseq")
+##### Julian Q. Zhou
+##### compute FPKM/TPM based on .sam
+
+#setwd("~/University/2016 Spring/cbb752/project/rnaseq")
 #setwd("/home2/qz93/cbb752")
 
 #########################
