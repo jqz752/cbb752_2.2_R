@@ -1,17 +1,5 @@
 setwd("~/University/2016 Spring/cbb752/project/rnaseq")
-
-#sam = read.delim('julian_sample.sam', header=F, skip=2)
-input.sam='julian_sample.sam'
-sam.num.header=0
-mapq.thresh=NA
-
-sam = sam[1:20000, ]
-sam$rname[1:10000] = paste0('chr', sample(1:13, 10000, replace=T))
-sam.df=sam
-
-#tmp = get.fpkm.tpm(input.sam='Gm12878Cytosol.sam',
-#                   sam.num.header=0,
-#                   save.pileup.name='Gm12878Cytosol.Rdata')
+#setwd("/home2/qz93/cbb752")
 
 #########################
 ##### main function #####
@@ -26,6 +14,7 @@ get.fpkm.tpm = function(input.sam, input.bed=NULL, input.gtf=NULL,
   # - sam.num.header: number of lines in head section of .sam; >=0
   # - mapq.thresh: threshold for MAPQ; >=0; applicable only if MAPQ!=255
   # - save.pileup, save.pileup.name: whether to save pileup as save.pileup.Rdata
+  # - use.parallel: parallel computing via foreach
   # assumes that 3rd col (RNAME) in sam file contains chromosome number
   
   ##### output:
@@ -57,15 +46,10 @@ get.fpkm.tpm = function(input.sam, input.bed=NULL, input.gtf=NULL,
   
   ##### compute pileup
   print('computing pileup based on sam file...')
-  if (!use.parallel){
-    pileup = get.pileup.file(sam.df=sam, 
-                             save=save.pileup, 
-                             save.name=save.pileup.name,
-                             use.parallel = use.parallel)
-  } else {
-    
-  }
-  
+  pileup = get.pileup.file(sam.df=sam, 
+                           save=save.pileup, 
+                           save.name=save.pileup.name,
+                           use.parallel = use.parallel)
   
   return(0)
 }
@@ -110,14 +94,15 @@ get.pileup.file = function(sam.df, save=F,
     num.cores = detectCores() - 1
     registerDoMC(num.cores)
     
-    pileup.file = foreach(i in 1:num.chr) %dopar% {
+    pileup.file = foreach(i=1:num.chr) %dopar% {
+      print(paste('now computing pileup for', uniq.chr[i]))
       get.pileup.chr(sam.df, uniq.chr[i])
     }
   }
   
   # assign name of chromosome to each list
   names(pileup.file) = uniq.chr
-
+  
   ##### save?
   if (save){
     save(pileup.file, file=save.name)
