@@ -74,6 +74,8 @@ get.fpkm.tpm = function(input.sam, input.gtf,
   gtf = gtf[, c(1,4,5,9,10)]
   colnames(gtf) = c('chr', 'start', 'end', 'id', 'name')
   
+  ##### 
+  
   return(0)
   
 }
