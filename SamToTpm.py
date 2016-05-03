@@ -4,7 +4,7 @@ Created on Mon May  2 14:02:44 2016
 
 @author: kevin
 """
-
+#input is sample.sam
 Samfname = "sample.sam"
 with open(Samfname) as f:
     Sam = f.readlines()
@@ -14,7 +14,7 @@ lines = []
 for i in range(len(Sam)):
     lines.append(Sam[i].split("\t", Sam[i].count("\t")))
 
-    
+    #input is sample.gtf
 Gfffname = "sample.gtf"
 with open(Gfffname) as f:
     Gff = f.readlines()
@@ -54,4 +54,7 @@ rpkm = {}
 for i in range(len(mappedReads)):
     tpm[str(i+1)] = mappedReads[str(i+1)]/ScalingFactor
     rpkm[str(i+1)] = float(mappedReads[str(i+1)])/((totalReads/1000000.) * (GFFlengths[str(i+1)]/1000.))
-print("TPM: ", tpm, "RPKM: ", rpkm)
+
+for i in range(len(mappedReads)):
+    print("Gene: " + repr(GFFlines[i][0]) + ", Feature: " + repr(GFFlines[i][1]) +
+    ", TPM: " +  repr(round(tpm[str(i+1)], 3)) + ", RPKM: " +  repr(round(rpkm[str(i+1)], 3)))
