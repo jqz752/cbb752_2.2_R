@@ -15,7 +15,7 @@ for i in range(len(Sam)):
     lines.append(Sam[i].split("\t", Sam[i].count("\t")))
 
     
-Gfffname = "sample.gff"
+Gfffname = "sample.gtf"
 with open(Gfffname) as f:
     Gff = f.readlines()
 
