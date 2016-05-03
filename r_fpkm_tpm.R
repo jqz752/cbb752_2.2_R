@@ -128,9 +128,9 @@ get.fpkm.tpm = function(input.sam, input.gtf, output.name, demo.mode = F,
   colnames(gtf) = c('chr', 'start', 'end', 'id', 'name')
   
   ##### compute raw counts and calculate estimated counts
-  print('computing raw and estimated counts for genes in gtf...')
+  print('computing raw and estimated counts for genes in gtf (this might take a while)...')
   gtf = cbind(gtf, counts = apply(gtf, 1, get.counts, 
-                                  pileup.list = pileup.file,
+                                  pileup.list = pileup,
                                   mtd = count.est.mtd,
                                   verbose = count.verbose))
   
@@ -205,6 +205,7 @@ get.pileup.file = function(sam.df, save=F,
   
   ##### save?
   if (save){
+    print('saving pileup.file...')
     save(pileup.file, file=save.name)
   }
   
@@ -286,14 +287,20 @@ get.counts = function(gtf.gene, pileup.list, mtd, verbose){
   # - mtd: method to estimate counts; a list of length 1 or 2
   # output:
   # a number, estimated no. of counts; or NA
+    
+  cur.chr = as.character(gtf.gene['chr'])
+  cur.start = as.numeric(gtf.gene['start'])
+  cur.end = as.numeric(gtf.gene['end'])
+  cur.id = as.character(gtf.gene['id'])
+  cur.name = as.character(gtf.gene['name'])
   
-  if (!is.null(pileup.list[[gtf.gene['chr']]])){
+  if ( !is.null(pileup.list[[cur.chr]]) ){
     # if pileup for the chromosome harboring current gene exists
-    gene.idx.in.pileup = (pileup.list[[gtf.gene['chr']]][, 1]>=gtf.gene['start']) &
-                         (pileup.list[[gtf.gene['chr']]][, 1]<=gtf.gene['end'])
+    gene.idx.in.pileup = ( pileup.list[[cur.chr]][, 1] >= cur.start ) &
+                         ( pileup.list[[cur.chr]][, 1] <= cur.end )
     if (sum(gene.idx.in.pileup)>0){
       # if pileup for range corresponding to current gene exists
-      raw.count = pileup.list[[gtf.gene['chr']]][gene.idx.in.pileup, 2]
+      raw.count = pileup.list[[cur.chr]][gene.idx.in.pileup, 2]
       
       # compute estimated counts
       if (mtd[[1]]=='mean') {
@@ -310,14 +317,13 @@ get.counts = function(gtf.gene, pileup.list, mtd, verbose){
       
     } else {
       if (verbose){
-        print(paste('no coverage for gene', gtf.gene['id'], gtf.gene['name']))
+        print(paste('no coverage for gene', cur.id, cur.name))
       }
       return(NA)
     }
   } else {
     if (verbose){
-        print(paste('no data for the chromosome harboring gene', 
-          gtf.gene['id'], gtf.gene['name']))
+        print(paste('no data for the chromosome harboring gene', cur.id, cur.name))
     }
     return(NA)
   }
@@ -336,6 +342,7 @@ get.quantity = function(gtf.gene, gtf.all, mtd, num.total.reads, tpm.norm=NULL){
   # - tpm.norm: normalization factor for tpm (NULL if not provided; i.e. for rpkm/fpkm)
   # output:
   # a number, or NA
+    
   if (is.na(gtf.gene['counts'])){
     return(NA)
   } else {
