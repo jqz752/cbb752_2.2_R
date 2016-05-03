@@ -59,3 +59,5 @@ Next, call the main function, `get.fpkm.tpm` from `r_fpkm_tpm.R` as follows:
 * `output.name`: output filename
 
 This program assumes that the third column (`RNAME`) in the .sam file contains chromosome number.
+
+`NA` will be reported as estimated counts and RPKM/FPKM/TPM for genes for which there is no read coverage or no sequencing data at all.
