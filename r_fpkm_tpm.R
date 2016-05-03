@@ -9,7 +9,7 @@ get.fpkm.tpm = function(input.sam, input.gtf,
                         sam.num.header, mapq.thresh=NA, 
                         save.pileup=T, save.pileup.name='pileup.Rdata',
                         use.parallel=T, count.est.mtd, count.verbose=F,
-                        output.name){
+                        quant.mtd, output.name){
   ##### input:
   # - input.sam/gtf: filename of input sam/gtf file (both 1-based)
   # - sam.num.header: number of lines in head section of .sam; >=0
@@ -19,6 +19,7 @@ get.fpkm.tpm = function(input.sam, input.gtf,
   # - count.est.mtd: method to estimate read count: mean, median, min, max, quantile
   #   given as a list; e.g. list('mean'); list('quantile', 0.7)
   # - count.verbose: T/F; if T, print out messages when estimating counts
+  # - quant.mtd: method to quantify RNA-seq ('rpkm', 'fpkm' or 'tpm')
   # - output.name: output filename
   # assumes that 3rd col (RNAME) in sam file contains chromosome number
   
@@ -84,7 +85,15 @@ get.fpkm.tpm = function(input.sam, input.gtf,
                                   verbose = count.verbose))
   
   ##### compute rpkm/fpkm or tpm
-  gtf = cbind(gtf, quantity = apply(gtf, 1, get.quantity, gtf.all=gtf, mtd='tpm', num.total.reads=sam.nreads)
+  if (quant.mtd=='tpm'){
+    tpm.norm.factor = get.tom.norm.factor(gtf.all)
+  } else {
+    tpm.norm.factor=NULL
+  }
+  
+  gtf = cbind(gtf, quantity = apply(gtf, 1, get.quantity, gtf.all=gtf, 
+                                    mtd=quant.mtd, num.total.reads=sam.nreads,
+                                    tpm.norm = tpm.norm.factor)
 
   ##### export as tab-delimited file
   write.table(gtf, file=output.name, quote=F, row.names=F, sep="\t")
@@ -205,7 +214,7 @@ get.pileup.chr = function(sam.df, chr){
 ##### raw & estimated counts at each position for a given gene #####
 ####################################################################
 
-get.counts = function(gtf.gene, pileup.list, mtd){
+get.counts = function(gtf.gene, pileup.list, mtd, verbose){
   # input:
   # - gtf.gene: a row from gtf (columns = chr, start, end, id, name)
   # - pileup.list: a list, each item is a pileup matrix for a chromosome
@@ -235,11 +244,16 @@ get.counts = function(gtf.gene, pileup.list, mtd){
       }
       
     } else {
-      print(paste('no coverage for gene', gtf.gene['id'], gtf.gene['name']))
+      if (verbose){
+        print(paste('no coverage for gene', gtf.gene['id'], gtf.gene['name']))
+      }
       return(NA)
     }
   } else {
-    print(paste('no data for the chromosome harboring gene', gtf.gene['id'], gtf.gene['name']))
+    if (verbose){
+        print(paste('no data for the chromosome harboring gene', 
+          gtf.gene['id'], gtf.gene['name']))
+    }
     return(NA)
   }
 }
@@ -248,12 +262,13 @@ get.counts = function(gtf.gene, pileup.list, mtd){
 ##### calculate RPKM/FPKM & TPM #####
 #####################################
 
-get.quantity = function(gtf.gene, gtf.all, mtd, num.total.reads){
+get.quantity = function(gtf.gene, gtf.all, mtd, num.total.reads, tpm.norm=NULL){
   # input:
   # - gtf.gene: a row from gtf (columns = chr, start, end, id, name, counts)
   # - gtf.all: entire gtf (for calculating tpm)
   # - mtd: method to quantify, 'rpkm', 'fpkm', or 'tpm'
   # - num.total.reads: total number of reads in .sam
+  # - tpm.norm: normalization factor for tpm (NULL if not provided; i.e. for rpkm/fpkm)
   # output:
   # a number, or NA
   if (is.na(gtf.gene['counts'])){
@@ -269,8 +284,7 @@ get.quantity = function(gtf.gene, gtf.all, mtd, num.total.reads){
 
     } else if (mtd=='tpm') {
       # tpm
-      tpm.norm.factor = get.tom.norm.factor(gtf.all)
-      tpm = gtf.gene['counts'] / gene.length / tpm.norm.factor * 10^6
+      tpm = gtf.gene['counts'] / gene.length / tpm.norm * 10^6
       return(tpm)
     }
   }
