@@ -42,15 +42,32 @@ for GFFline in GFFlines:
                 #mappedReads[lines[i][2]] = 1
                 mappedReads[str(gffCount)] = 1
 
+#Calculate TPM:
+#(X[i]/L[i])*(1/(sum(Xtot/Ltot)))*1e6
+#breaking it down to steps:
+#Take each gene read and divide by length (in kb) of gene
+#Next take these normalized reads and sum them for each gene
+#create scaling factor by dividing summed normalized reads by 1e6
+#take your normalized reads from step 1 and divide by the scaling factor
+#instructions from here: https://www.youtube.com/watch?v=TTUrtCY2k-w
+#and here: https://haroldpimentel.wordpress.com/2014/05/08/what-the-fpkm-a-review-rna-seq-expression-units/
 GFFrpk = {}
 ScalingFactor = 0#sum and divided by 1000000
 for i in range(len(GFFlengths)):
+    #calculate rpk by mappedRead/length
     GFFrpk[str(i+1)] = float(mappedReads[str(i+1)])/GFFlengths[str(i+1)]
+    #get scaling factor by doing running total of the rpk
     ScalingFactor += (GFFrpk[str(i+1)])#get total rpk
-
-ScalingFactor /= 1000000#scale by 1000000
+    
+#scale the total rpk by 1e6
+ScalingFactor /= 1000000
 tpm = {}
 rpkm = {}
+#calculate RPKM: 
+#Get number of reads
+#Calculate Number_of_reads/(length_of_gene/kilobase * total_number_reads/1e6)
+#Instructions found here: https://haroldpimentel.wordpress.com/2014/05/08/what-the-fpkm-a-review-rna-seq-expression-units/
+
 for i in range(len(mappedReads)):
     tpm[str(i+1)] = mappedReads[str(i+1)]/ScalingFactor
     rpkm[str(i+1)] = float(mappedReads[str(i+1)])/((totalReads/1000000.) * (GFFlengths[str(i+1)]/1000.))
