@@ -24,6 +24,8 @@ get.fpkm.tpm = function(input.sam, input.gtf,
   # assumes that 3rd col (RNAME) in sam file contains chromosome number
   
   ##### output:
+  # a tab-delimited txt file containing gene id, name, start, end, estimated counts, and quantification
+  
   
   ##### read in sam file #####
   # skip head section (lines beginning with @)
@@ -86,15 +88,16 @@ get.fpkm.tpm = function(input.sam, input.gtf,
   
   ##### compute rpkm/fpkm or tpm
   if (quant.mtd=='tpm'){
-    tpm.norm.factor = get.tom.norm.factor(gtf.all)
+    tpm.norm.factor = get.tpm.norm.factor(gtf.all=gtf)
   } else {
     tpm.norm.factor=NULL
   }
   
   gtf = cbind(gtf, quantity = apply(gtf, 1, get.quantity, gtf.all=gtf, 
                                     mtd=quant.mtd, num.total.reads=sam.nreads,
-                                    tpm.norm = tpm.norm.factor)
-
+                                    tpm.norm = tpm.norm.factor))
+  colnames(gtf)[ncol(gtf)] = quant.mtd
+  
   ##### export as tab-delimited file
   write.table(gtf, file=output.name, quote=F, row.names=F, sep="\t")
 }
@@ -275,16 +278,16 @@ get.quantity = function(gtf.gene, gtf.all, mtd, num.total.reads, tpm.norm=NULL){
     return(NA)
   } else {
     # calculate gene length; used as effective length
-    gene.length = abs(gtf.gene['end'] - gtf.gene['start'])
+    gene.length = abs(as.numeric(gtf.gene['end']) - as.numeric(gtf.gene['start']))
     
     if (mtd=='rpkm' | mtd=='fpkm') {
       # fpkm/rpkm
-      rpkm = gtf.gene['counts'] / gene.length / num.total.reads * 10^9
+      rpkm = as.numeric(gtf.gene['counts']) / gene.length / num.total.reads * 10^9
       return(rpkm)
 
     } else if (mtd=='tpm') {
       # tpm
-      tpm = gtf.gene['counts'] / gene.length / tpm.norm * 10^6
+      tpm = as.numeric(gtf.gene['counts']) / gene.length / tpm.norm * 10^6
       return(tpm)
     }
   }
