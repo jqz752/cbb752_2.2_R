@@ -264,6 +264,14 @@ get.pileup.chr = function(sam.df, chr){
     pileup[cur.read.idx, 'count'] = pileup[cur.read.idx, 'count']+1
   }
   
+  ##### only keep non-zero rows
+  if (sum(pileup[, 'count']>0)>0){
+    # if at least 1 base position has coverage
+    pileup = pileup[pileup[, 'count']>0, ]
+  } else {
+    pileup=NULL
+  }
+  
   return(pileup)
 }
 
