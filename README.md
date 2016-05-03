@@ -8,9 +8,9 @@ Given a .sam and a .gtf file, calculate either RPKM/FPKM or TPM as a measure of 
 
 Available [here](https://github.com/jqz752/cbb752_2.2)
 
-`r_preprocess_gtf.R`
+`r_preprocess_gtf.R`: for preprocessing a large comprehensive gtf file into a compact one containing only protein-coding genes
 
-`r_fpkm_tpm.R`
+`r_fpkm_tpm.R`: main script
 
 ## Sample input
 * A .sam file
@@ -38,6 +38,9 @@ chr1 |	110198703	| 110208118 |	ENSG00000168765.11 |	GSTM4 |	NA |	NA
 chr1 |	110210644	| 110252171	| ENSG00000213366.8	 | GSTM2 |	148.055914670864 |	265.457974667923
 
 ## Usage
+If applicable, before running `r_fpkm_tpm.R`, first run `r_preprocess_gtf.R` to convert a large comprehensive gtf file into a compact one containing only protein-coding genes.
+
+Next, call the main function, `get.fpkm.tpm` from `r_fpkm_tpm.R` as follows:
 
 `get.fpkm.tpm = function(input.sam, input.gtf,
                         sam.num.header, mapq.thresh=NA, 
