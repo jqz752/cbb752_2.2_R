@@ -60,6 +60,6 @@ Next, call the main function, `get.fpkm.tpm` from `r_fpkm_tpm.R` as follows:
 
 The output is a tab-delimited text file named after `output.name`, and contains 5 columns: chromosome number, start position, end position, gene ID, gene name, estimated read counts, and RPKM/FPKM/TPM (depending on `count.est.mtd`).
 
-This program assumes that the third column (`RNAME`) in the .sam file contains chromosome number.
+This program assumes that the third column (`RNAME`) in the .sam file contains chromosome number. It also assumes that the reads in .sam are single-end reads.
 
 `NA` will be reported as estimated counts and RPKM/FPKM/TPM for genes for which there is no read coverage or no sequencing data at all.
