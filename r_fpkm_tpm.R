@@ -8,15 +8,18 @@
 get.fpkm.tpm = function(input.sam, input.gtf,
                         sam.num.header, mapq.thresh=NA, 
                         save.pileup=T, save.pileup.name='pileup.Rdata',
-                        use.parallel=T, count.est.mtd){
+                        use.parallel=T, count.est.mtd, count.verbose=F,
+                        output.name){
   ##### input:
   # - input.sam/gtf: filename of input sam/gtf file (both 1-based)
   # - sam.num.header: number of lines in head section of .sam; >=0
   # - mapq.thresh: threshold for MAPQ; >=0; applicable only if MAPQ!=255
   # - save.pileup, save.pileup.name: whether to save pileup as save.pileup.Rdata
   # - use.parallel: parallel computing via foreach
-  # - method to estimate read count: mean, median, min, max, quantile; a list
-  #   e.g. list('mean'); list('quantile', 0.7)
+  # - count.est.mtd: method to estimate read count: mean, median, min, max, quantile
+  #   given as a list; e.g. list('mean'); list('quantile', 0.7)
+  # - count.verbose: T/F; if T, print out messages when estimating counts
+  # - output.name: output filename
   # assumes that 3rd col (RNAME) in sam file contains chromosome number
   
   ##### output:
@@ -45,7 +48,8 @@ get.fpkm.tpm = function(input.sam, input.gtf,
   
   ### keep only reads with FLAG values 0 or 16
   sam = sam[(sam$flag==0) | (sam$flag==16), ]
-  
+  sam.nreads = nrow(sam)
+
   ##### compute pileup
   print('computing pileup based on sam file...')
   pileup = get.pileup.file(sam.df=sam, 
@@ -73,10 +77,17 @@ get.fpkm.tpm = function(input.sam, input.gtf,
   gtf = gtf[, c(1,4,5,9,10)]
   colnames(gtf) = c('chr', 'start', 'end', 'id', 'name')
   
-  ##### 
+  ##### compute raw counts and calculate estimated counts
+  gtf = cbind(gtf, counts = apply(gtf, 1, get.counts, 
+                                  pileup.list = pileup.file,
+                                  mtd = count.est.mtd,
+                                  verbose = count.verbose))
   
-  return(0)
-  
+  ##### compute rpkm/fpkm or tpm
+  gtf = cbind(gtf, quantity = apply(gtf, 1, get.quantity, gtf.all=gtf, mtd='tpm', num.total.reads=sam.nreads)
+
+  ##### export as tab-delimited file
+  write.table(gtf, file=output.name, quote=F, row.names=F, sep="\t")
 }
 
 #########################################################
@@ -190,58 +201,89 @@ get.pileup.chr = function(sam.df, chr){
   return(pileup)
 }
 
-########################################################
-##### raw counts at each position for a given gene #####
-########################################################
+####################################################################
+##### raw & estimated counts at each position for a given gene #####
+####################################################################
 
-get.raw.counts = function(gtf.gene, pileup.list){
+get.counts = function(gtf.gene, pileup.list, mtd){
   # input:
   # - gtf.gene: a row from gtf (columns = chr, start, end, id, name)
   # - pileup.list: a list, each item is a pileup matrix for a chromosome
+  # - mtd: method to estimate counts; a list of length 1 or 2
   # output:
-  # - counts (vector, length <= length of gene); or NA
+  # a number, estimated no. of counts; or NA
   
-  if (!is.null(pileup.list[[gtf.gene$chr]])){
+  if (!is.null(pileup.list[[gtf.gene['chr']]])){
     # if pileup for the chromosome harboring current gene exists
-    gene.idx.in.pileup = (pileup.list[[gtf.gene$chr]][, 1]>=gtf.gene$start) &
-                         (pileup.list[[gtf.gene$chr]][, 1]<=gtf.gene$end)
+    gene.idx.in.pileup = (pileup.list[[gtf.gene['chr']]][, 1]>=gtf.gene['start']) &
+                         (pileup.list[[gtf.gene['chr']]][, 1]<=gtf.gene['end'])
     if (sum(gene.idx.in.pileup)>0){
       # if pileup for range corresponding to current gene exists
-      counts = pileup.list[[gtf.gene$chr]][gene.idx.in.pileup, 2]
-      return(counts)
+      raw.count = pileup.list[[gtf.gene['chr']]][gene.idx.in.pileup, 2]
+      
+      # compute estimated counts
+      if (mtd[[1]]=='mean') {
+        return(mean(raw.count))
+      } else if (mtd[[1]]=='median') {
+        return(median(raw.count))
+      } else if (mtd[[1]]=='max'){
+        return(max(raw.count))
+      } else if (mtd[[1]]=='min'){
+        return(min(raw.count))
+      } else if (mtd[[1]]=='quantile'){
+        return(quantile(raw.count, mtd[[2]]))
+      }
+      
     } else {
-      print(paste('no coverage for gene', gtf.gene$id, gtf.gene$name))
+      print(paste('no coverage for gene', gtf.gene['id'], gtf.gene['name']))
       return(NA)
     }
   } else {
-    print(paste('no data for the chromosome harboring gene', gtf.gene$id, gtf.gene$name))
+    print(paste('no data for the chromosome harboring gene', gtf.gene['id'], gtf.gene['name']))
     return(NA)
   }
 }
 
-#################################################################################
-##### estimate counts at each position for a given gene based on raw counts #####
-#################################################################################
+#####################################
+##### calculate RPKM/FPKM & TPM #####
+#####################################
 
-get.est.counts = function(raw.count, mtd){
+get.quantity = function(gtf.gene, gtf.all, mtd, num.total.reads){
   # input:
-  # - raw.count: raw counts from get.raw.counts
-  # - mtd: method to estimate counts; a list of length 1 or 2
-  # output: 
-  # a number, estimated no. of counts; or NA
-  if (is.na(raw.count)){
+  # - gtf.gene: a row from gtf (columns = chr, start, end, id, name, counts)
+  # - gtf.all: entire gtf (for calculating tpm)
+  # - mtd: method to quantify, 'rpkm', 'fpkm', or 'tpm'
+  # - num.total.reads: total number of reads in .sam
+  # output:
+  # a number, or NA
+  if (is.na(gtf.gene['counts'])){
     return(NA)
   } else {
-    if (mtd[[1]]=='mean') {
-      return(mean(raw.count))
-    } else if (mtd[[1]]=='median') {
-      return(median(raw.count))
-    } else if (mtd[[1]]=='max'){
-      return(max(raw.count))
-    } else if (mtd[[1]]=='min'){
-      return(min(raw.count))
-    } else if (mtd[[1]]=='quantile'){
-      return(quantile(raw.count, mtd[[2]]))
+    # calculate gene length; used as effective length
+    gene.length = abs(gtf.gene['end'] - gtf.gene['start'])
+    
+    if (mtd=='rpkm' | mtd=='fpkm') {
+      # fpkm/rpkm
+      rpkm = gtf.gene['counts'] / gene.length / num.total.reads * 10^9
+      return(rpkm)
+
+    } else if (mtd=='tpm') {
+      # tpm
+      tpm.norm.factor = get.tom.norm.factor(gtf.all)
+      tpm = gtf.gene['counts'] / gene.length / tpm.norm.factor * 10^6
+      return(tpm)
     }
   }
+}
+
+get.tpm.norm.factor = function(gtf.all){
+  # input:
+  # - gtf.all: all rows from gtf (columns = chr, start, end, id, name, counts)
+  # output:
+  # normalizatioin factor for tpm: sum_j{X_j/l_j}, where X_j = counts, l_j=eff.length
+  
+  gtf.all.non.na = gtf.all[!is.na(gtf.all$counts), ]
+  gtf.all.non.na.length = abs(gtf.all.non.na$end - gtf.all.non.na$start)
+  norm.factor = sum(gtf.all.non.na$counts / gtf.all.non.na.length, na.rm=T)
+  return(norm.factor)
 }
