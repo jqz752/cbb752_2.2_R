@@ -5,64 +5,111 @@
 ##### main function #####
 #########################
 
-get.fpkm.tpm = function(input.sam, input.gtf,
+get.fpkm.tpm = function(input.sam, input.gtf, output.name, demo.mode = F,
                         sam.num.header, mapq.thresh=NA, 
-                        save.pileup=T, save.pileup.name='pileup.Rdata',
-                        use.parallel=T, count.est.mtd, count.verbose=F,
-                        quant.mtd, output.name){
+                        save.pileup=T, save.pileup.name='pileup.Rdata', use.parallel=T, 
+                        count.est.mtd, count.verbose=F, quant.mtd){
   ##### input:
   # - input.sam/gtf: filename of input sam/gtf file (both 1-based)
+  #   assumes that 3rd col (RNAME) in sam file contains chromosome number
+  # - output.name: output filename
+  # - demo.mode: T/F; if T, for demonstration, skip processing input .sam and load processed .sam
+  
   # - sam.num.header: number of lines in head section of .sam; >=0
   # - mapq.thresh: threshold for MAPQ; >=0; applicable only if MAPQ!=255
+  
   # - save.pileup, save.pileup.name: whether to save pileup as save.pileup.Rdata
-  # - use.parallel: parallel computing via foreach
+  # - use.parallel: whether to use parallel computing via foreach when computing pileup
+  
   # - count.est.mtd: method to estimate read count: mean, median, min, max, quantile
   #   given as a list; e.g. list('mean'); list('quantile', 0.7)
   # - count.verbose: T/F; if T, print out messages when estimating counts
   # - quant.mtd: method to quantify RNA-seq ('rpkm', 'fpkm' or 'tpm')
-  # - output.name: output filename
-  # assumes that 3rd col (RNAME) in sam file contains chromosome number
   
   ##### output:
   # a tab-delimited txt file containing gene id, name, start, end, estimated counts, and quantification
   
-  
-  ##### read in sam file #####
-  # skip head section (lines beginning with @)
-  # keep characters as if (as opposed to converting to factor)
-  print('reading in sam file...')
-  if (sam.num.header==0){
-    sam = read.delim(input.sam, header=F, as.is=T)
+  if (!demo.mode){
+    ##### read in sam file #####
+    # skip head section (lines beginning with @)
+    # keep characters as if (as opposed to converting to factor)
+    print('reading in sam file...')
+    if (sam.num.header==0){
+      sam = read.delim(input.sam, header=F, as.is=T)
+    } else {
+      sam = read.delim(input.sam, header=F, as.is=T, skip=sam.num.header)
+    }
+    
+    ##### trim sam file #####
+    ### keep only FLAG, RNAME, POS, MAPQ, and SEQ
+    print('trimming sam file...')
+    sam = sam[, c(2:5, 10)]
+    colnames(sam) = c('flag', 'rname', 'pos', 'mapq', 'seq')
+    
+    ### filter by mapping quality (MAPQ)
+    # only apply filter if MAPQ is available (255=unavail)
+    if (!is.na(mapq.thresh)){
+      sam = sam[(sam$mapq > mapq.thresh) | (sam$mapq != 255), ]
+    }
+    
+    ### keep only reads with FLAG values 0 or 16
+    sam = sam[(sam$flag==0) | (sam$flag==16), ]
+    
+    ### replace sequence (strings) with length of sequence (number)
+    sam = cbind(sam[, -5], length=sapply(sam$seq, nchar))
+    
   } else {
-    sam = read.delim(input.sam, header=F, as.is=T, skip=sam.num.header)
+    ### demo mode: load pre-processed .sam from .Rdata
+    if (file.exists('sample_Gm12878Cytosol_trimmed_sam.Rdata')) {
+      # if file exists, load (will appear as 'sam' in workspace)
+      print('running demo mode...')
+      print('reading in sam file...')
+      print('trimming sam file...')
+      load('sample_Gm12878Cytosol_trimmed_sam.Rdata')
+    } else {
+      # if file does not exist, raise error
+      stop('Sample sam file for demo does not exist. Are you in the correct directory?')
+    }
   }
-  
-  ##### trim sam file #####
-  ### keep only FLAG, RNAME, POS, MAPQ, and SEQ
-  print('trimming sam file...')
-  sam = sam[, c(2:5, 10)]
-  colnames(sam) = c('flag', 'rname', 'pos', 'mapq', 'seq')
-  
-  ### filter by mapping quality (MAPQ)
-  # only apply filter if MAPQ is available (255=unavail)
-  if (!is.na(mapq.thresh)){
-    sam = sam[(sam$mapq > mapq.thresh) | (sam$mapq != 255), ]
-  }
-  
-  ### keep only reads with FLAG values 0 or 16
-  sam = sam[(sam$flag==0) | (sam$flag==16), ]
+
+  ##### total number of reads
   sam.nreads = nrow(sam)
 
   ##### compute pileup
-  print('computing pileup based on sam file...')
-  pileup = get.pileup.file(sam.df=sam, 
-                           save=save.pileup, 
-                           save.name=save.pileup.name,
-                           use.parallel = use.parallel)
+  print('computing pileup based on sam file (this might take a while)...')
+  if (!demo.mode){
+    pileup = get.pileup.file(sam.df=sam, 
+                             save=save.pileup, 
+                             save.name=save.pileup.name,
+                             use.parallel = use.parallel)
+  } else {
+    ### demo mode: load pileup.Rdata
+    if (file.exists('sample_pileup.Rdata')) {
+      # if file exists, load (will appear as 'pileup.file' in workspace)
+      load('sample_pileup.Rdata')
+      pileup = pileup.file; rm(pileup.file)
+    } else {
+      # if file does not exist, raise error
+      stop('Sample pileup file for demo does not exist. Are you in the correct directory?')
+    }
+  }
+  
   
   ##### read in GTF
   print('reading in gtf file...')
-  gtf = read.delim(input.gtf, header=F, as.is=T)
+  if (!demo.mode){
+    gtf = read.delim(input.gtf, header=F, as.is=T) 
+    
+  } else {
+    ### demo mode: load sample gtf
+    if (file.exists('sample_gencode19_prtn_coding.gtf')) {
+      # if file exists, load (will appear as 'pileup.file' in workspace)
+      gtf = read.delim('sample_gencode19_prtn_coding.gtf', header=F, as.is=T)
+    } else {
+      # if file does not exist, raise error
+      stop('Sample gtf file for demo does not exist. Are you in the correct directory?')
+    }
+  }
   
   # get gene id and gene name from V9 (attributes); drop ending semi-colon
   gtf.gene.id = c()
@@ -81,12 +128,15 @@ get.fpkm.tpm = function(input.sam, input.gtf,
   colnames(gtf) = c('chr', 'start', 'end', 'id', 'name')
   
   ##### compute raw counts and calculate estimated counts
+  print('computing raw and estimated counts for genes in gtf...')
   gtf = cbind(gtf, counts = apply(gtf, 1, get.counts, 
                                   pileup.list = pileup.file,
                                   mtd = count.est.mtd,
                                   verbose = count.verbose))
   
   ##### compute rpkm/fpkm or tpm
+  print(paste('quantifying RNA-seq in', quant.mtd, 'for genes in gtf...'))
+  
   if (quant.mtd=='tpm'){
     tpm.norm.factor = get.tpm.norm.factor(gtf.all=gtf)
   } else {
@@ -99,6 +149,7 @@ get.fpkm.tpm = function(input.sam, input.gtf,
   colnames(gtf)[ncol(gtf)] = quant.mtd
   
   ##### export as tab-delimited file
+  print('exporting output...')
   write.table(gtf, file=output.name, quote=F, row.names=F, sep="\t")
 }
 
@@ -142,6 +193,7 @@ get.pileup.file = function(sam.df, save=F,
     num.cores = detectCores() - 1
     registerDoMC(num.cores)
     
+    warning("Paralleling might not work for very large sam files as long vectors are not yet supported by foreach")
     pileup.file = foreach(i=1:num.chr) %dopar% {
       print(paste('now computing pileup for', uniq.chr[i]))
       get.pileup.chr(sam.df, uniq.chr[i])
@@ -167,7 +219,7 @@ get.pileup.chr = function(sam.df, chr){
   ##### input:
   # - sam.df: data frame created after trimming sam file
   # - chr: name of chromosome
-  # assumes these columns exist: flag, rname, pos, mapq, seq
+  # assumes these columns exist: flag, rname, pos, mapq, length
   # assumes that rname contains chromosome number
   
   ##### output:
@@ -183,8 +235,7 @@ get.pileup.chr = function(sam.df, chr){
   pos.max = max(reads$pos)
   
   ##### find length of the longest sequence starting at pos.max
-  reads.pos.max.seq = reads[reads$pos==pos.max, 'seq']
-  reads.pos.max.leng = sapply(reads.pos.max.seq, nchar)
+  reads.pos.max.leng = reads[reads$pos==pos.max, 'length']
   reads.pos.max.leng.longest = max(reads.pos.max.leng)
   
   ##### create pileup matrix
@@ -203,10 +254,13 @@ get.pileup.chr = function(sam.df, chr){
   # increment of 1 in 'count' at each position covered by read
   for (i in 1:nrow(reads)){
     cur.read.start.pos = reads$pos[i]
-    cur.read.leng = nchar(reads$seq[i])
+    cur.read.leng = reads$length[i]
     cur.read.end.pos = cur.read.start.pos + cur.read.leng - 1
-    cur.read.idx = match(cur.read.start.pos:cur.read.end.pos, 
-                         pileup[, 'pos'])
+    # very slow:
+    #cur.read.idx = match(cur.read.start.pos:cur.read.end.pos, 
+    #                     pileup[, 'pos'])
+    # much faster:
+    cur.read.idx = (cur.read.start.pos - pos.min + 1):(cur.read.end.pos - pos.min + 1)
     pileup[cur.read.idx, 'count'] = pileup[cur.read.idx, 'count']+1
   }
   
