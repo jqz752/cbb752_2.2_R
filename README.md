@@ -8,9 +8,9 @@ Given a .sam and a .gtf file, calculate either RPKM/FPKM or TPM as a measure of 
 
 Available [here](https://github.com/jqz752/cbb752_2.2)
 
-`r_preprocess_gtf.R`: for preprocessing a large comprehensive gtf file into a compact one containing only protein-coding genes
+* `r_preprocess_gtf.R`: for preprocessing a large comprehensive gtf file into a compact one containing only protein-coding genes
 
-`r_fpkm_tpm.R`: main script
+* `r_fpkm_tpm.R`: main script
 
 ## Sample input
 * A .sam file
@@ -57,6 +57,8 @@ Next, call the main function, `get.fpkm.tpm` from `r_fpkm_tpm.R` as follows:
 * `count.verbose`: `T`/`F`; if `T`, print out messages when estimating counts
 * `quant.mtd`: method to quantify RNA-seq; `'rpkm'`, `'fpkm'`, or `'tpm'`
 * `output.name`: output filename
+
+The output is a tab-delimited text file named after `output.name`, and contains 5 columns: chromosome number, start position, end position, gene ID, gene name, estimated read counts, and RPKM/FPKM/TPM (depending on `count.est.mtd`).
 
 This program assumes that the third column (`RNAME`) in the .sam file contains chromosome number.
 
