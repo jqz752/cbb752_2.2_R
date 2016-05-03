@@ -24,7 +24,7 @@ gencode19.prtn.coding = gencode19[gene.type=='protein_coding;', ]
 dim(gencode19.prtn.coding) # 20345 x 9
 
 # export as .Rdata and tab-delimited .gtf
-save(gencode19.prtn.coding, file='gencode19_prtn_coding.Rdata')
-write.table(gencode19.prtn.coding, file='gencode19_prtn_coding.gtf', quote=F, sep="\t", row.names=F)
+save(gencode19.prtn.coding, file='sample_gencode19_prtn_coding.Rdata')
+write.table(gencode19.prtn.coding, file='sample_gencode19_prtn_coding.gtf', quote=F, sep="\t", row.names=F)
 
 # proceed to manually delete first row of .gtf (V1 V2 ... V9)
