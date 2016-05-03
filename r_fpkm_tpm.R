@@ -13,7 +13,10 @@ get.fpkm.tpm = function(input.sam, input.gtf, output.name, demo.mode = F,
   # - input.sam/gtf: filename of input sam/gtf file (both 1-based)
   #   assumes that 3rd col (RNAME) in sam file contains chromosome number
   # - output.name: output filename
-  # - demo.mode: T/F; if T, for demonstration, skip processing input .sam and load processed .sam
+  # - demo.mode: T/F; if T, for demonstration, 
+  #   skip processing input .sam and load processed .sam;
+  #   load sample .gtf;
+  #   skip computing pileup and load pre-stored pileup result
   
   # - sam.num.header: number of lines in head section of .sam; >=0
   # - mapq.thresh: threshold for MAPQ; >=0; applicable only if MAPQ!=255
