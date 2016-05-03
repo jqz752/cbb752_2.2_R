@@ -54,13 +54,13 @@ Next, call the main function, `get.fpkm.tpm` from `r_fpkm_tpm.R` as follows:
 
 * `input.sam/gtf`: filename of input sam/gtf file (both 1-based)
 * `output.name`: output filename
-* `demo.mode`: `T`/`F`; if `T`, for demonstration, skip processing input .sam and load processed .sam
+* `demo.mode`: `T`/`F`; if `T`, for demonstration, skip processing input .sam and load processed .sam; load sample .gtf; skip computing pileup and load pre-stored pileup result
 
 * `sam.num.header`: number of lines in head section (`@...`) of .sam to skip; should be >=0
-* `mapq.thresh`: threshold for `MAPQ` in .sam; should be >=0; applicable only if `MAPQ!=255`
+* * `mapq.thresh`: threshold for `MAPQ` in .sam; should be >=0; applicable only if `MAPQ!=255`
 
 * `save.pileup`, `save.pileup.name`: whether to save pileup as `save.pileup.Rdata`
-* `use.parallel`: whether to use parallel computing via the `foreach` package for computing pile up
+* * `use.parallel`: whether to use parallel computing via the `foreach` package for computing pile up
 
 * `count.est.mtd`: method to estimate read count: `'mean'`, `'median'`, `'min'`, `'max'`, `'quantile'`; must be supplied as a list; e.g. `list('mean')`; `list('quantile', 0.7)`
 * `count.verbose`: `T`/`F`; if `T`, print out messages when estimating counts
