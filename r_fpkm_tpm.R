@@ -1,9 +1,6 @@
 ##### Julian Q. Zhou
 ##### compute FPKM/TPM based on .sam
 
-#setwd("~/University/2016 Spring/cbb752/project/rnaseq")
-#setwd("/home2/qz93/cbb752")
-
 #########################
 ##### main function #####
 #########################
@@ -11,13 +8,15 @@
 get.fpkm.tpm = function(input.sam, input.gtf,
                         sam.num.header, mapq.thresh=NA, 
                         save.pileup=T, save.pileup.name='pileup.Rdata',
-                        use.parallel=T){
+                        use.parallel=T, count.est.mtd){
   ##### input:
-  # - input.sam/gtf: filename of input sam/gtf file
+  # - input.sam/gtf: filename of input sam/gtf file (both 1-based)
   # - sam.num.header: number of lines in head section of .sam; >=0
   # - mapq.thresh: threshold for MAPQ; >=0; applicable only if MAPQ!=255
   # - save.pileup, save.pileup.name: whether to save pileup as save.pileup.Rdata
   # - use.parallel: parallel computing via foreach
+  # - method to estimate read count: mean, median, min, max, quantile; a list
+  #   e.g. list('mean'); list('quantile', 0.7)
   # assumes that 3rd col (RNAME) in sam file contains chromosome number
   
   ##### output:
@@ -68,7 +67,7 @@ get.fpkm.tpm = function(input.sam, input.gtf,
   }
   
   gtf = cbind(gtf[, -9], gtf.gene.id, gtf.gene.name)
-  rm(gtf.gene.id, gtf.gene.name)
+  rm(gtf.gene.id, gtf.gene.name, attributes, i)
   
   # keep only columns of interest
   gtf = gtf[, c(1,4,5,9,10)]
@@ -189,4 +188,60 @@ get.pileup.chr = function(sam.df, chr){
   }
   
   return(pileup)
+}
+
+########################################################
+##### raw counts at each position for a given gene #####
+########################################################
+
+get.raw.counts = function(gtf.gene, pileup.list){
+  # input:
+  # - gtf.gene: a row from gtf (columns = chr, start, end, id, name)
+  # - pileup.list: a list, each item is a pileup matrix for a chromosome
+  # output:
+  # - counts (vector, length <= length of gene); or NA
+  
+  if (!is.null(pileup.list[[gtf.gene$chr]])){
+    # if pileup for the chromosome harboring current gene exists
+    gene.idx.in.pileup = (pileup.list[[gtf.gene$chr]][, 1]>=gtf.gene$start) &
+                         (pileup.list[[gtf.gene$chr]][, 1]<=gtf.gene$end)
+    if (sum(gene.idx.in.pileup)>0){
+      # if pileup for range corresponding to current gene exists
+      counts = pileup.list[[gtf.gene$chr]][gene.idx.in.pileup, 2]
+      return(counts)
+    } else {
+      print(paste('no coverage for gene', gtf.gene$id, gtf.gene$name))
+      return(NA)
+    }
+  } else {
+    print(paste('no data for the chromosome harboring gene', gtf.gene$id, gtf.gene$name))
+    return(NA)
+  }
+}
+
+#################################################################################
+##### estimate counts at each position for a given gene based on raw counts #####
+#################################################################################
+
+get.est.counts = function(raw.count, mtd){
+  # input:
+  # - raw.count: raw counts from get.raw.counts
+  # - mtd: method to estimate counts; a list of length 1 or 2
+  # output: 
+  # a number, estimated no. of counts; or NA
+  if (is.na(raw.count)){
+    return(NA)
+  } else {
+    if (mtd[[1]]=='mean') {
+      return(mean(raw.count))
+    } else if (mtd[[1]]=='median') {
+      return(median(raw.count))
+    } else if (mtd[[1]]=='max'){
+      return(max(raw.count))
+    } else if (mtd[[1]]=='min'){
+      return(min(raw.count))
+    } else if (mtd[[1]]=='quantile'){
+      return(quantile(raw.count, mtd[[2]]))
+    }
+  }
 }
