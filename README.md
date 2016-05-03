@@ -13,23 +13,26 @@ Available [here](https://github.com/jqz752/cbb752_2.2)
 * `r_fpkm_tpm.R`: main script
 
 ## Sample input
-* A .sam file
+* A .sam file that looks like below:
 
 | 276945-1	| 16	| chr1	| 10560	| 255	| 36M	| *	| 0	| 0	| AAACGCAGCTCCGCCCTCGCGGTGCTCTCCGGGTCT	| IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII	| XA:i:0	MD:Z:0C35	NM:i:1	YG:i:3	YC:Z:128,0,128 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 479920-1	| 16	| chr1	| 17390	| 255	| 36M	| *	| 0	| 0	| CAGGCAAGCTGACACCCGCTGTCCTGAGCCCATGTT	| IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII	| XA:i:0	MD:Z:36	NM:i:0	YG:i:6	YC:Z:128,0,128 |
 | 475014-1	| 0	| chr1	| 22401	| 255	| 16M	| *	| 0	| 0	| TCTGACAGGCGTACCA	| IIIIIIIIIIIIIIII	| XA:i:1	MD:Z:12G3	NM:i:1	YG:i:16	YC:Z:128,0,128 |
 
+In demo mode, a pre-processed sample .sam file is loaded from `sample_Gm12878Cytosol_trimmed_sam.Rdata`.
 
-* A .gtf file
+* A .gtf file that looks like below:
 
 chr1 |	HAVANA |	gene	| 69091 | 70008	| . |	+	| .	| gene_id ENSG00000186092.4; transcript_id ENSG00000186092.4; gene_type protein_coding; gene_status KNOWN; gene_name OR4F5; transcript_type protein_coding; transcript_status KNOWN; transcript_name OR4F5; level 2; havana_gene OTTHUMG00000001094.1;
 --- | --- | --- | --- | --- | --- | --- | --- | --- 
 chr1 |	ENSEMBL|	gene	| 134901|	139379|	.	|-	|.	|gene_id ENSG00000237683.5; transcript_id ENSG00000237683.5; gene_type protein_coding; gene_status KNOWN; gene_name AL627309.1; transcript_type protein_coding; transcript_status KNOWN; transcript_name AL627309.1; level 3;
 chr1 |	HAVANA	| gene	|367640	|368634	|.	|+	|.	|gene_id ENSG00000235249.1; transcript_id ENSG00000235249.1; gene_type protein_coding; gene_status KNOWN; gene_name OR4F29; transcript_type protein_coding; transcript_status KNOWN; transcript_name OR4F29; level 2; havana_gene OTTHUMG00000002860.1;
 
+In demo mode, a sample .gtf file is loaded from `sample_gencode19_prtn_coding.gtf`.
+
 ## Sample output
-* A tab-delimited .txt file
+* A tab-delimited .txt file that looks like below:
 
 chr |	start	| end |	id	| name	| counts |	tpm
 --- | --- | --- | --- | --- | --- | --- 
