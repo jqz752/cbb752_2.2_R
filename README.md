@@ -62,7 +62,7 @@ Next, call the main function, `get.fpkm.tpm` from `r_fpkm_tpm.R` as follows:
 * `save.pileup`, `save.pileup.name`: whether to save pileup as `save.pileup.Rdata`.
 * `use.parallel`: whether to use parallel computing via the `foreach` package for computing pile up.
 
-* `count.est.mtd`: method to estimate read count: `'mean'`, `'median'`, `'min'`, `'max'`, `'quantile'`; must be supplied as a list; e.g. `list('mean')`; `list('quantile', 0.7)`.
+* `count.est.mtd`: method to estimate read counts of a gene based on raw read counts at each base position within the range of that range: `'mean'`, `'median'`, `'min'`, `'max'`, `'quantile'`; must be supplied as a list; e.g. `list('mean')`; `list('quantile', 0.7)`.
 * `count.verbose`: `T`/`F`; if `T`, print out messages when estimating counts.
 * `quant.mtd`: method to quantify RNA-seq; `'rpkm'`, `'fpkm'`, or `'tpm'`; `rpkm` and `fpkm` essentially give the same results.
 
@@ -73,7 +73,7 @@ This program assumes that the third column (`RNAME`) in the .sam file contains c
 
 `NA` will be reported as estimated counts and RPKM/FPKM/TPM for genes for which there is no read coverage or no sequencing data at all.
 
-Here is an example running in non-demo mode (`demo.mode=F`), assuming that there are two input files, `Gm12878Cytosol.sam` and `gencode19_prtn_coding.gtf`.
+Here is an example running in non-demo mode (`demo.mode=F`), assuming that there are two input files, `Gm12878Cytosol.sam` and `gencode19_prtn_coding.gtf`. `Gm12878Cytosol.sam` can be converted by `samtools` from `wgEncodeCshlShortRnaSeqGm12878CytosolShortAln.bam`, accessible from [here](http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeCshlShortRnaSeq/wgEncodeCshlShortRnaSeqGm12878CytosolShortAln.bam). `gencode19_prtn_coding.gtf` can be created by pre-processing `gencode.v19.annotation.gtf`, accessible from [here](ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz), with `r_preprocess_gtf.R`.
 
 `> get.fpkm.tpm(input.sam='Gm12878Cytosol.sam', input.gtf='gencode19_prtn_coding.gtf', output.name='nondemo_q3_tpm.txt', demo.mode=F, sam.num.header=0, save.pileup.name='nondemo_q3_tpm_pileup.Rdata', use.parallel=F, count.est.mtd=list('quantile', .75), quant.mtd='tpm')`
 
