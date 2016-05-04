@@ -52,19 +52,19 @@ Next, call the main function, `get.fpkm.tpm` from `r_fpkm_tpm.R` as follows:
               save.pileup=T, save.pileup.name='pileup.Rdata', use.parallel=T, 
               count.est.mtd, count.verbose=F, quant.mtd)`
 
-* `input.sam/gtf`: filename of input sam/gtf file (both 1-based)
-* `output.name`: output filename
-* `demo.mode`: `T`/`F`; if `T`, for demonstration, skip processing input .sam and load processed .sam; load sample .gtf; skip computing pileup and load pre-stored pileup result
+* `input.sam/gtf`: filename of input sam/gtf file (both 1-based).
+* `output.name`: output filename.
+* `demo.mode`: `T`/`F`; if `T`, for demonstration, skip processing input .sam and load processed .sam; load sample .gtf; skip computing pileup and load pre-stored pileup result.
 
-* `sam.num.header`: number of lines in head section (`@...`) of .sam to skip; should be >=0
-* `mapq.thresh`: threshold for `MAPQ` in .sam; should be >=0; applicable only if `MAPQ!=255`
+* `sam.num.header`: number of lines in head section (`@...`) of .sam to skip; should be >=0.
+* `mapq.thresh`: threshold for `MAPQ` in .sam; should be >=0; applicable only if `MAPQ!=255`.
 
-* `save.pileup`, `save.pileup.name`: whether to save pileup as `save.pileup.Rdata`
-* `use.parallel`: whether to use parallel computing via the `foreach` package for computing pile up
+* `save.pileup`, `save.pileup.name`: whether to save pileup as `save.pileup.Rdata`.
+* `use.parallel`: whether to use parallel computing via the `foreach` package for computing pile up.
 
-* `count.est.mtd`: method to estimate read count: `'mean'`, `'median'`, `'min'`, `'max'`, `'quantile'`; must be supplied as a list; e.g. `list('mean')`; `list('quantile', 0.7)`
-* `count.verbose`: `T`/`F`; if `T`, print out messages when estimating counts
-* `quant.mtd`: method to quantify RNA-seq; `'rpkm'`, `'fpkm'`, or `'tpm'`
+* `count.est.mtd`: method to estimate read count: `'mean'`, `'median'`, `'min'`, `'max'`, `'quantile'`; must be supplied as a list; e.g. `list('mean')`; `list('quantile', 0.7)`.
+* `count.verbose`: `T`/`F`; if `T`, print out messages when estimating counts.
+* `quant.mtd`: method to quantify RNA-seq; `'rpkm'`, `'fpkm'`, or `'tpm'`; `rpkm` and `fpkm` essentially give the same results.
 
 
 The output is a tab-delimited text file named after `output.name`, and contains 5 columns: chromosome number, start position, end position, gene ID, gene name, estimated read counts, and RPKM/FPKM/TPM (depending on `count.est.mtd`).
