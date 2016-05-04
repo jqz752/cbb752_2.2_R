@@ -72,3 +72,71 @@ The output is a tab-delimited text file named after `output.name`, and contains 
 This program assumes that the third column (`RNAME`) in the .sam file contains chromosome number. It also assumes that the reads in .sam are single-end reads.
 
 `NA` will be reported as estimated counts and RPKM/FPKM/TPM for genes for which there is no read coverage or no sequencing data at all.
+
+Here is an example running in non-demo mode (`demo.mode=F`), assuming that there are two input files, `Gm12878Cytosol.sam` and `gencode19_prtn_coding.gtf`.
+
+`> get.fpkm.tpm(input.sam='Gm12878Cytosol.sam', input.gtf='gencode19_prtn_coding.gtf', output.name='nondemo_q3_tpm.txt', demo.mode=F, sam.num.header=0, save.pileup.name='nondemo_q3_tpm_pileup.Rdata', use.parallel=F, count.est.mtd=list('quantile', .75), quant.mtd='tpm')`
+
+`[1] "reading in sam file..."`
+
+`[1] "trimming sam file..."`
+
+`[1] "computing pileup based on sam file (this might take a while)..."`
+
+`[1] "now computing pileup for chr1"`
+
+`[1] "now computing pileup for chr10"`
+
+`[1] "now computing pileup for chr11"`
+
+`[1] "now computing pileup for chr12"`
+
+`[1] "now computing pileup for chr13"`
+
+`[1] "now computing pileup for chr14"`
+
+`[1] "now computing pileup for chr15"`
+
+`[1] "now computing pileup for chr16"`
+
+`[1] "now computing pileup for chr17"`
+
+`[1] "now computing pileup for chr18"`
+
+`[1] "now computing pileup for chr19"`
+
+`[1] "now computing pileup for chr2"`
+
+`[1] "now computing pileup for chr20"`
+
+`[1] "now computing pileup for chr21"`
+
+`[1] "now computing pileup for chr22"`
+
+`[1] "now computing pileup for chr3"`
+
+`[1] "now computing pileup for chr4"`
+
+`[1] "now computing pileup for chr5"`
+
+`[1] "now computing pileup for chr6"`
+
+`[1] "now computing pileup for chr7"`
+
+`[1] "now computing pileup for chr8"`
+
+`[1] "now computing pileup for chr9"`
+
+`[1] "now computing pileup for chrM"`
+
+`[1] "now computing pileup for chrX"`
+
+`[1] "saving pileup.file..."`
+
+`[1] "reading in gtf file..."`
+
+`[1] "computing raw and estimated counts for genes in gtf (this might take a while)..."`
+
+`[1] "quantifying RNA-seq in tpm for genes in gtf..."`
+
+`[1] "exporting output..."`
