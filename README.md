@@ -20,7 +20,7 @@ Available [here](https://github.com/jqz752/cbb752_2.2)
 | 479920-1	| 16	| chr1	| 17390	| 255	| 36M	| *	| 0	| 0	| CAGGCAAGCTGACACCCGCTGTCCTGAGCCCATGTT	| IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII	| XA:i:0	MD:Z:36	NM:i:0	YG:i:6	YC:Z:128,0,128 |
 | 475014-1	| 0	| chr1	| 22401	| 255	| 16M	| *	| 0	| 0	| TCTGACAGGCGTACCA	| IIIIIIIIIIIIIIII	| XA:i:1	MD:Z:12G3	NM:i:1	YG:i:16	YC:Z:128,0,128 |
 
-In demo mode, a pre-processed sample .sam file is loaded from `sample_Gm12878Cytosol_trimmed_sam.Rdata`.
+In demo mode, a pre-processed sample .sam file is loaded from `sample_Gm12878Cytosol_trimmed_sam.Rdata` (.sam file not provided due to its large size [>1 GB]).
 
 * A .gtf file that looks like below:
 
@@ -40,7 +40,7 @@ chr1 |	110158726 |	110174673 |	ENSG00000116337.11 |	AMPD2 |	89.5790927065621 |	4
 chr1 |	110198703	| 110208118 |	ENSG00000168765.11 |	GSTM4 |	NA |	NA
 chr1 |	110210644	| 110252171	| ENSG00000213366.8	 | GSTM2 |	148.055914670864 |	265.457974667923
 
-In demo mode, two sample output files, `sample_tpm` and `sample_rpkm`, are produced, respectively, by running `get.fpkm.tpm(output.name='sample_tpm.txt', demo.mode=T, count.est.mtd=list('quantile', 0.75), quant.mtd='tpm')`, and `get.fpkm.tpm(output.name='sample_rpkm.txt', demo.mode=T, count.est.mtd=list('quantile', 0.75), quant.mtd='rpkm')`.
+In demo mode, two sample output files, `sample_tpm.txt` and `sample_rpkm.txt`, are produced, respectively, by running `get.fpkm.tpm(output.name='sample_tpm.txt', demo.mode=T, count.est.mtd=list('quantile', 0.75), quant.mtd='tpm')`, and `get.fpkm.tpm(output.name='sample_rpkm.txt', demo.mode=T, count.est.mtd=list('quantile', 0.75), quant.mtd='rpkm')`.
 
 ## Usage
 If applicable, before running `r_fpkm_tpm.R`, first run `r_preprocess_gtf.R` to convert a large comprehensive gtf file into a compact one containing only protein-coding genes.
@@ -73,7 +73,7 @@ This program assumes that the third column (`RNAME`) in the .sam file contains c
 
 `NA` will be reported as estimated counts and RPKM/FPKM/TPM for genes for which there is no read coverage or no sequencing data at all.
 
-Here is an example running in non-demo mode (`demo.mode=F`), assuming that there are two input files, `Gm12878Cytosol.sam` and `gencode19_prtn_coding.gtf`. `Gm12878Cytosol.sam` can be converted by `samtools` from `wgEncodeCshlShortRnaSeqGm12878CytosolShortAln.bam`, accessible from [here](http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeCshlShortRnaSeq/wgEncodeCshlShortRnaSeqGm12878CytosolShortAln.bam). `gencode19_prtn_coding.gtf` can be created by pre-processing `gencode.v19.annotation.gtf`, accessible at ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz, with `r_preprocess_gtf.R`.
+Here is an example running in non-demo mode (`demo.mode=F`), assuming that there are two input files, `Gm12878Cytosol.sam` and `gencode19_prtn_coding.gtf`. `Gm12878Cytosol.sam` can be converted by `samtools` from `wgEncodeCshlShortRnaSeqGm12878CytosolShortAln.bam`, accessible from [here](http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeCshlShortRnaSeq/wgEncodeCshlShortRnaSeqGm12878CytosolShortAln.bam). `gencode19_prtn_coding.gtf` can be created by pre-processing `gencode.v19.annotation.gtf`, accessible at ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz, with `r_preprocess_gtf.R`. The output text file is the same as `sample_tpm.txt` produced in demo mode, since the input files used in demo mode and here are essentially the same. 
 
 `> get.fpkm.tpm(input.sam='Gm12878Cytosol.sam', input.gtf='gencode19_prtn_coding.gtf', output.name='nondemo_q3_tpm.txt', demo.mode=F, sam.num.header=0, save.pileup.name='nondemo_q3_tpm_pileup.Rdata', use.parallel=F, count.est.mtd=list('quantile', .75), quant.mtd='tpm')`
 
