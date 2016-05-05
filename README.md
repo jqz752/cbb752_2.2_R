@@ -1,4 +1,6 @@
-# CBB752 Final Project 2.2, R card, by Julian Q Zhou
+#Quantifying RNA-seq Using RPKM/FPKM/TPM Based on SAM & GTF Files
+
+*CBB752 Final Project 2.2, R card, by Julian Q Zhou*
 
 ## Objective
 
