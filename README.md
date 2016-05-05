@@ -69,9 +69,7 @@ Next, call the main function, `get.fpkm.tpm` from `r_fpkm_tpm.R` as follows:
 
 The output is a tab-delimited text file named after `output.name`, and contains 5 columns: chromosome number, start position, end position, gene ID, gene name, estimated read counts, and RPKM/FPKM/TPM (depending on `count.est.mtd`).
 
-This program assumes that the third column (`RNAME`) in the .sam file contains chromosome number. It also assumes that the reads in .sam are single-end reads.
-
-`NA` will be reported as estimated counts and RPKM/FPKM/TPM for genes for which there is no read coverage or no sequencing data at all.
+This program assumes that the third column (`RNAME`) in the .sam file contains chromosome number. It also assumes that the reads in .sam are single-end reads. For each chromosome, it first computes the read depth, or pile-up, at each base position. Then, for each gene, based on the read depths of positions within the range of that gene, an estimated read count is calculated, using a method of the user's choice (`count.est.mtd`). Finally, RPKM/FPKM or TPM is calculated for each gene, depending on user's choice (`quant.mtd`), using the length of the protein-coding gene as effective length. `NA`s are reported as estimated counts and RPKM/FPKM/TPM for genes for which there is no read coverage or no sequencing data at all.
 
 #### Example
 
