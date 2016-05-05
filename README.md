@@ -6,7 +6,7 @@ Given a .sam and a .gtf file, calculate either RPKM/FPKM or TPM as a measure of 
 
 ## Source code
 
-Available [here](https://github.com/jqz752/cbb752_2.2)
+Available [here](https://github.com/jqz752/cbb752_2.2_R)
 
 * `r_preprocess_gtf.R`: for preprocessing a large comprehensive gtf file into a compact one containing only protein-coding genes
 
