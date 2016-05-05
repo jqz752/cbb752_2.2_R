@@ -81,15 +81,15 @@ As a result, two sample output files, `sample_tpm.txt` and `sample_rpkm.txt`, ar
 
 #### Example 2 (Non-demo mode)
 
-Here is an example running in non-demo mode (`demo.mode=F`), assuming that there are two input files, `Gm12878Cytosol.sam` and `gencode19_prtn_coding.gtf`. 
+Here is an example running in non-demo mode (`demo.mode=F`), assuming that there are two input files, `Gm12878Cytosol.sam` and `sample_gencode19_prtn_coding.gtf`. 
 
 `Gm12878Cytosol.sam` can be converted by `samtools` from `wgEncodeCshlShortRnaSeqGm12878CytosolShortAln.bam`, accessible from [here](http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeCshlShortRnaSeq/wgEncodeCshlShortRnaSeqGm12878CytosolShortAln.bam). This file is not provided here on Github due to its large size (>1 GB). Instead, a pre-processed version, `sample_Gm12878Cytosol_trimmed_sam.Rdata` is provided (see Example 1 (Demo mode)).
 
-`gencode19_prtn_coding.gtf` can be created by pre-processing `gencode.v19.annotation.gtf`, accessible at ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz, with `r_preprocess_gtf.R`. This file is the same as `sample_gencode19_prtn_coding.gtf` (see Example 1 (Demo mode)).
+`sample_gencode19_prtn_coding.gtf` can be created by pre-processing `gencode.v19.annotation.gtf`, accessible at ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz, with `r_preprocess_gtf.R`. This is the same as the input gtf file used in Example 1 (Demo mode).
 
-The output text file is the **same** as `sample_tpm.txt` produced in demo mode, since the input files used in demo mode and here are essentially the same. 
+The output text file is the **same** as `sample_tpm.txt` produced in demo mode, since the input files used in demo mode and here are essentially the same, in addition to the same `count.est.mtd` and `quant.mtd` arguments. 
 
-`> get.fpkm.tpm(input.sam='Gm12878Cytosol.sam', input.gtf='gencode19_prtn_coding.gtf', output.name='nondemo_q3_tpm.txt', demo.mode=F, sam.num.header=0, save.pileup.name='nondemo_q3_tpm_pileup.Rdata', use.parallel=F, count.est.mtd=list('quantile', .75), quant.mtd='tpm')`
+`> get.fpkm.tpm(input.sam='Gm12878Cytosol.sam', input.gtf='sample_gencode19_prtn_coding.gtf', output.name='sample_tpm.txt', demo.mode=F, sam.num.header=0, save.pileup.name='sample_pileup.Rdata', use.parallel=F, count.est.mtd=list('quantile', .75), quant.mtd='tpm')`
 
 `[1] "reading in sam file..."`
 
