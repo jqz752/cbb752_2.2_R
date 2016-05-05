@@ -20,7 +20,6 @@ Available [here](https://github.com/jqz752/cbb752_2.2_R)
 | 479920-1	| 16	| chr1	| 17390	| 255	| 36M	| *	| 0	| 0	| CAGGCAAGCTGACACCCGCTGTCCTGAGCCCATGTT	| IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII	| XA:i:0	MD:Z:36	NM:i:0	YG:i:6	YC:Z:128,0,128 |
 | 475014-1	| 0	| chr1	| 22401	| 255	| 16M	| *	| 0	| 0	| TCTGACAGGCGTACCA	| IIIIIIIIIIIIIIII	| XA:i:1	MD:Z:12G3	NM:i:1	YG:i:16	YC:Z:128,0,128 |
 
-In demo mode, a pre-processed sample .sam file is loaded from `sample_Gm12878Cytosol_trimmed_sam.Rdata` (.sam file not provided due to its large size [>1 GB]).
 
 * A .gtf file that looks like below:
 
@@ -29,7 +28,6 @@ chr1 |	HAVANA |	gene	| 69091 | 70008	| . |	+	| .	| gene_id ENSG00000186092.4; tr
 chr1 |	ENSEMBL|	gene	| 134901|	139379|	.	|-	|.	|gene_id ENSG00000237683.5; transcript_id ENSG00000237683.5; gene_type protein_coding; gene_status KNOWN; gene_name AL627309.1; transcript_type protein_coding; transcript_status KNOWN; transcript_name AL627309.1; level 3;
 chr1 |	HAVANA	| gene	|367640	|368634	|.	|+	|.	|gene_id ENSG00000235249.1; transcript_id ENSG00000235249.1; gene_type protein_coding; gene_status KNOWN; gene_name OR4F29; transcript_type protein_coding; transcript_status KNOWN; transcript_name OR4F29; level 2; havana_gene OTTHUMG00000002860.1;
 
-In demo mode, a sample .gtf file is loaded from `sample_gencode19_prtn_coding.gtf`.
 
 ## Sample output
 * A tab-delimited .txt file that looks like below:
@@ -39,8 +37,6 @@ chr |	start	| end |	id	| name	| counts |	tpm
 chr1 |	110158726 |	110174673 |	ENSG00000116337.11 |	AMPD2 |	89.5790927065621 |	418.242573880954
 chr1 |	110198703	| 110208118 |	ENSG00000168765.11 |	GSTM4 |	NA |	NA
 chr1 |	110210644	| 110252171	| ENSG00000213366.8	 | GSTM2 |	148.055914670864 |	265.457974667923
-
-In demo mode, two sample output files, `sample_tpm.txt` and `sample_rpkm.txt`, are produced, respectively, by running `get.fpkm.tpm(output.name='sample_tpm.txt', demo.mode=T, count.est.mtd=list('quantile', 0.75), quant.mtd='tpm')`, and `get.fpkm.tpm(output.name='sample_rpkm.txt', demo.mode=T, count.est.mtd=list('quantile', 0.75), quant.mtd='rpkm')`.
 
 ## Usage
 If applicable, before running `r_fpkm_tpm.R`, first run `r_preprocess_gtf.R` to convert a large comprehensive gtf file into a compact one containing only protein-coding genes.
@@ -68,11 +64,20 @@ Next, call the main function, `get.fpkm.tpm` from `r_fpkm_tpm.R` as follows:
 
 This program assumes that the third column (`RNAME`) in the .sam file contains chromosome number. It also assumes that the reads in .sam are single-end reads. 
 
-For each chromosome, it first computes the read depth, or pile-up, at each base position. Note that using parallel computing via `foreach` to compute pile-up might not work for very large sam files as long vectors are not yet supported by foreach. Then, for each gene, based on the read depths of positions within the range of that gene, an estimated read count is calculated, using a method of the user's choice (`count.est.mtd`). Finally, RPKM/FPKM or TPM is calculated for each gene, depending on user's choice (`quant.mtd`), using the length of the protein-coding gene as effective length. `NA`s are reported as estimated counts and RPKM/FPKM/TPM for genes for which there is no read coverage or no sequencing data at all.
+For each chromosome, it first computes the read depth, or pile-up, at each base position. Note that using parallel computing via `foreach` (`use.parallel=T`) to compute pile-up might not work for very large sam files as long vectors are not yet supported by `foreach`. Then, for each gene, based on the read depths of positions within the range of that gene, an estimated read count is calculated, using a method of the user's choice (`count.est.mtd`). Finally, RPKM/FPKM or TPM is calculated for each gene, depending on user's choice (`quant.mtd`), using the length of the protein-coding gene as effective length. `NA`s are reported as estimated counts and RPKM/FPKM/TPM for genes for which there is no read coverage or no sequencing data at all.
 
 The output is a tab-delimited text file named after `output.name`, and contains 5 columns: chromosome number, start position, end position, gene ID, gene name, estimated read counts, and RPKM/FPKM/TPM (depending on `count.est.mtd`).
 
-#### Example
+#### Example 1 (Demo mode)
+
+In demo mode (`demo.mode=T`), a pre-processed sample .sam file is loaded from `sample_Gm12878Cytosol_trimmed_sam.Rdata` (.sam file not provided due to its large size [>1 GB]). In addition, a sample .gtf file is loaded from `sample_gencode19_prtn_coding.gtf`. As a result, two sample output files, `sample_tpm.txt` and `sample_rpkm.txt`, are produced, respectively, by running:
+
+`get.fpkm.tpm(output.name='sample_tpm.txt', demo.mode=T, count.est.mtd=list('quantile', 0.75), quant.mtd='tpm')` , and
+
+`get.fpkm.tpm(output.name='sample_rpkm.txt', demo.mode=T, count.est.mtd=list('quantile', 0.75), quant.mtd='rpkm')`.
+
+
+#### Example 2 (Non-demo mode)
 
 Here is an example running in non-demo mode (`demo.mode=F`), assuming that there are two input files, `Gm12878Cytosol.sam` and `gencode19_prtn_coding.gtf`. 
 
@@ -80,7 +85,7 @@ Here is an example running in non-demo mode (`demo.mode=F`), assuming that there
 
 `gencode19_prtn_coding.gtf` can be created by pre-processing `gencode.v19.annotation.gtf`, accessible at ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz, with `r_preprocess_gtf.R`. 
 
-The output text file is the *same* as `sample_tpm.txt` produced in demo mode, since the input files used in demo mode and here are essentially the same. 
+The output text file is the **same** as `sample_tpm.txt` produced in demo mode, since the input files used in demo mode and here are essentially the same. 
 
 `> get.fpkm.tpm(input.sam='Gm12878Cytosol.sam', input.gtf='gencode19_prtn_coding.gtf', output.name='nondemo_q3_tpm.txt', demo.mode=F, sam.num.header=0, save.pileup.name='nondemo_q3_tpm_pileup.Rdata', use.parallel=F, count.est.mtd=list('quantile', .75), quant.mtd='tpm')`
 
