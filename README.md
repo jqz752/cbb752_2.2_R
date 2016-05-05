@@ -70,7 +70,9 @@ The output is a tab-delimited text file named after `output.name`, and contains 
 
 #### Example 1 (Demo mode)
 
-In demo mode (`demo.mode=T`), a pre-processed sample .sam file is loaded from `sample_Gm12878Cytosol_trimmed_sam.Rdata`. In addition, a sample .gtf file is loaded from `sample_gencode19_prtn_coding.gtf`. As a result, two sample output files, `sample_tpm.txt` and `sample_rpkm.txt`, are produced, respectively, by running:
+In demo mode (`demo.mode=T`), as inputs, a pre-processed sample .sam file is loaded from `sample_Gm12878Cytosol_trimmed_sam.Rdata`; and a sample .gtf file is loaded from `sample_gencode19_prtn_coding.gtf`. To shorten the runtime, `sample_pileup.Rdata`, which stores the pile-up results computed in advance with exactly the same commands shown below, is also loaded so as to skip the waiting time of actually computing pile-up during demo mode.
+
+As a result, two sample output files, `sample_tpm.txt` and `sample_rpkm.txt`, are produced, respectively, by running:
 
 `get.fpkm.tpm(output.name='sample_tpm.txt', demo.mode=T, count.est.mtd=list('quantile', 0.75), quant.mtd='tpm')` , and
 
