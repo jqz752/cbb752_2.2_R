@@ -70,7 +70,7 @@ The output is a tab-delimited text file named after `output.name`, and contains 
 
 #### Example 1 (Demo mode)
 
-In demo mode (`demo.mode=T`), a pre-processed sample .sam file is loaded from `sample_Gm12878Cytosol_trimmed_sam.Rdata` (.sam file not provided due to its large size [>1 GB]). In addition, a sample .gtf file is loaded from `sample_gencode19_prtn_coding.gtf`. As a result, two sample output files, `sample_tpm.txt` and `sample_rpkm.txt`, are produced, respectively, by running:
+In demo mode (`demo.mode=T`), a pre-processed sample .sam file is loaded from `sample_Gm12878Cytosol_trimmed_sam.Rdata`. In addition, a sample .gtf file is loaded from `sample_gencode19_prtn_coding.gtf`. As a result, two sample output files, `sample_tpm.txt` and `sample_rpkm.txt`, are produced, respectively, by running:
 
 `get.fpkm.tpm(output.name='sample_tpm.txt', demo.mode=T, count.est.mtd=list('quantile', 0.75), quant.mtd='tpm')` , and
 
@@ -81,9 +81,9 @@ In demo mode (`demo.mode=T`), a pre-processed sample .sam file is loaded from `s
 
 Here is an example running in non-demo mode (`demo.mode=F`), assuming that there are two input files, `Gm12878Cytosol.sam` and `gencode19_prtn_coding.gtf`. 
 
-`Gm12878Cytosol.sam` can be converted by `samtools` from `wgEncodeCshlShortRnaSeqGm12878CytosolShortAln.bam`, accessible from [here](http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeCshlShortRnaSeq/wgEncodeCshlShortRnaSeqGm12878CytosolShortAln.bam). 
+`Gm12878Cytosol.sam` can be converted by `samtools` from `wgEncodeCshlShortRnaSeqGm12878CytosolShortAln.bam`, accessible from [here](http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeCshlShortRnaSeq/wgEncodeCshlShortRnaSeqGm12878CytosolShortAln.bam). This file is not provided here on Github due to its large size (>1 GB). Instead, a pre-processed version, `sample_Gm12878Cytosol_trimmed_sam.Rdata` is provided (see Example 1 (Demo mode)).
 
-`gencode19_prtn_coding.gtf` can be created by pre-processing `gencode.v19.annotation.gtf`, accessible at ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz, with `r_preprocess_gtf.R`. 
+`gencode19_prtn_coding.gtf` can be created by pre-processing `gencode.v19.annotation.gtf`, accessible at ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz, with `r_preprocess_gtf.R`. This file is the same as `sample_gencode19_prtn_coding.gtf` (see Example 1 (Demo mode)).
 
 The output text file is the **same** as `sample_tpm.txt` produced in demo mode, since the input files used in demo mode and here are essentially the same. 
 
