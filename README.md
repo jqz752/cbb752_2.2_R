@@ -4,7 +4,7 @@
 
 ## Objective
 
-Given a .sam and a .gtf file, calculate either RPKM/FPKM or TPM as a measure of RNA-seq quantification for genes in .gtf based on reads from .sam
+Given a [SAM](http://samtools.sourceforge.net/SAMv1.pdf) and a [GTF](http://www.gencodegenes.org/data_format.html) file, calculate either RPKM/FPKM or TPM as a measure of RNA-seq quantification for genes in GTF based on reads from SAM.
 
 ## Source code
 
